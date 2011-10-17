@@ -1,5 +1,5 @@
 ################################################
-## S+Fractal tapers and windows
+## SAPA tapers and windows
 ##
 ##::::::::::::::::::::::::::::::::::::::::::::::
 ##
@@ -33,7 +33,7 @@
   checkScalarType(bandwidth,"numeric")
   checkScalarType(normalize,"logical")
 
-  # define local funfzctions
+  # define local functions
   "tapersDPSS" <- function(N, n.tapers=2, NW=4)
   {
     N <- as.integer(N)
@@ -44,75 +44,22 @@
       stop(paste("parameter n.tapers =", n.tapers, "should be positive integer"))
     if(n.tapers > N)
       stop(paste("parameter n.tapers =", n.tapers, "cannot be greater than\nparameter N =", N))
-    if(n.tapers > 1) {
-
-      if (is.R()){
-	result <- .Call("R_sapa_dpss", as.integer(N), as.integer(n.taper), as.double(bandwidth), PACKAGE="sapa")
-      }
-      else{
-
-   	tpW <- (2 * pi * NW)/N
-    	otNmo <- 1:N
-
-    	# generated N diagonal elements of symmetric tridiagonal matrix
-    	D <- as.double(cos(tpW) * ((N - 1 - 2 * (0:(N - 1)))/2)^2)
-
-    	# generate N-1 off-diagonal elements; note that actually N elements
-    	# are generated here; only the first N-1 are used by dstebz,
-    	# but the documentation for dstein indicates that it needs
-    	# a vector with N elements, the first N-1 of which are the
-    	# off-diagonal elements.
-    	E <- as.double((otNmo * (N - otNmo))/2)
-
-    	z <- .Fortran("dstebz",
-    		"I",
-    		"B",
-    		as.integer(N),
-    		double(1),
-    		double(1),
-    		as.integer(N - n.tapers + 1),
-    		as.integer(N),
-    		double(1),
-    		D,
-    		E,
-    		integer(1),
-    		integer(1),
-    		double(N),
-    		integer(N),
-    		integer(N),
-    		double(4 * N),
-    		integer(3 * N),
-    		integer(1),
-                PACKAGE="sapa")[c(13, 14, 15)]
-
-    	result <- .Fortran("dstein",
-    		as.integer(N),
-    		D,
-    		E,
-    		as.integer(n.tapers),
-    		z[[1]],
-    		z[[2]],
-    		z[[3]],
-    		double(N * n.tapers),
-    		as.integer(N),
-    		double(5 * N),
-    		integer(N),
-    		integer(n.tapers),
-    		integer(1),
-                PACKAGE="sapa")[[8]]
-	}
-    	dim(result) <- c(N, n.tapers)
-    	result <- result[, n.tapers:1]
-    	for(k in 1:as.integer((n.tapers + 1)/2) * 2 - 1)
-    		if(!(sum(result[, k]) > 0)) result[, k] <-  - result[, k]
-    	tmp <- N - 1 - 2 * (0:(N - 1))
-    	for(k in 1:as.integer(n.tapers/2) * 2)
-    		if (!(sum(result[, k] * tmp) > 0))
+    if(n.tapers > 1) 
+    {
+        result <- .Call("R_sapa_dpss", as.integer(N), as.integer(n.taper), as.double(bandwidth))
+        dim(result) <- c(N, n.tapers)
+        result <- result[, n.tapers:1]
+        for(k in 1:as.integer((n.tapers + 1)/2) * 2 - 1)
+            if(!(sum(result[, k]) > 0)) result[, k] <-  - result[, k]
+        tmp <- N - 1 - 2 * (0:(N - 1))
+        for(k in 1:as.integer(n.tapers/2) * 2)
+            if (!(sum(result[, k] * tmp) > 0))
         result[, k] <-  -result[, k]
     }
-    else {
-    	result <- tapersDPSS(N, n.taper=2, NW=NW)[,1]
-    	dim(result) <- c(N, 1)
+    else 
+    {
+        result <- tapersDPSS(N, n.taper=2, NW=NW)[,1]
+        dim(result) <- c(N, 1)
     }
     result
   }

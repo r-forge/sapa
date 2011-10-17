@@ -13,7 +13,7 @@ extern "C" {
 
 /** Discrete prolate spheroidal sequences for multitaper SDF estimation.
  * @source sapa\_lapack.c
- * @author Copyright (c), 1988, 2006 Insightful Corp.  All rights reserved.
+ * @author William Constantine
  * @usage #.Call( "R_sapa_dpss", nsample, ntaper, bandwidth)#
  * @return          An R ... containing ...
  * @param nsample   Number of points in each taper (integer)

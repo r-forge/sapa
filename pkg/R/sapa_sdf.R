@@ -1,5 +1,5 @@
 ###################################################
-## S+Fractal spectral density function constructor
+## SAPA spectral density function constructor
 ## functions and corresponding methods
 ##
 ##::::::::::::::::::::::::::::::::::::::::::::::
